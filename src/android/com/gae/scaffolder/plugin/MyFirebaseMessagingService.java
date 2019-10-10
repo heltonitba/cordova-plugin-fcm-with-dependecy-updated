@@ -10,7 +10,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import java.util.Map;
 import java.util.HashMap;
-
+import android.os.Build;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -20,6 +22,7 @@ import com.google.firebase.messaging.RemoteMessage;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FCMPlugin";
+    Vibrator vibrator;
 
     @Override
     public void onNewToken(String token) {
@@ -39,7 +42,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
-        Log.d(TAG, "==> MyFirebaseMessagingService onMessageReceived");
+        /*Log.d(TAG, "==> MyFirebaseMessagingService onMessageReceived");
         
         if(remoteMessage.getNotification() != null){
             Log.d(TAG, "\tNotification Title: " + remoteMessage.getNotification().getTitle());
@@ -61,7 +64,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
         
         Log.d(TAG, "\tNotification Data: " + data.toString());
-        FCMPlugin.sendPushPayload( data );
+        FCMPlugin.sendPushPayload( data );*/
+
+
+        sendNotification2("teste");
         //sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), remoteMessage.getData());
     }
     // [END receive_message]
@@ -71,8 +77,27 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
+
+    public void sendNotification2(String messageBody) {
+
+      animate();
+      }
+
+    public void animate (){
+
+      Intent alarmIntent = new Intent(this, AlertActivity.class);
+      alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      this.startActivity(alarmIntent);
+    }
+
+
     private void sendNotification(String title, String messageBody, Map<String, Object> data) {
         Intent intent = new Intent(this, FCMPluginActivity.class);
+
+
+
+
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         for (String key : data.keySet()) {
             intent.putExtra(key, data.get(key).toString());

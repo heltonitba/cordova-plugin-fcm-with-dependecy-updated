@@ -25,7 +25,7 @@ public class FCMPluginActivity extends Activity {
         super.onCreate(savedInstanceState);
 		Log.d(TAG, "==> FCMPluginActivity onCreate");
 		
-		Map<String, Object> data = new HashMap<String, Object>();
+		/*Map<String, Object> data = new HashMap<String, Object>();
         if (getIntent().getExtras() != null) {
 			Log.d(TAG, "==> USER TAPPED NOTFICATION");
 			data.put("wasTapped", true);
@@ -40,7 +40,9 @@ public class FCMPluginActivity extends Activity {
 
         finish();
 
-        forceMainActivityReload();
+        forceMainActivityReload();*/
+
+
     }
 
     private void forceMainActivityReload() {
