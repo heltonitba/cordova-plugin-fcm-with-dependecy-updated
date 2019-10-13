@@ -1,5 +1,6 @@
 package com.gae.scaffolder.plugin;
 
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -15,13 +16,39 @@ import android.os.Vibrator;
 import android.os.VibrationEffect;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences; //
 
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 /**
  * Created by Felipe Echanique on 08/06/2016.
  */
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FCMPlugin";
+    private final String PREFERENCE_FILE_KEY = "NativeStorage"; //
+    private final String KEY = "alerta-config"; //
+
+    public static final String inputFormat = "HH:mm";
+
+    private Date date;
+    private Date dateCompareOne;
+    private Date dateCompareTwo;
+
+    private String compareStringOne;
+    private String compareStringTwo;
+
+    SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat);
+
+
+    SharedPreferences pref; //
+    SharedPreferences.Editor editor; //
     Vibrator vibrator;
 
     @Override
@@ -33,42 +60,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Called when message is received.
      *
-     * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
+     * @param remoteMessage Object representing the message received from Firebase
+     *                      Cloud Messaging.
      */
     // [START receive_message]
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // TODO(developer): Handle FCM messages here.
-        // If the application is in the foreground handle both data and notification messages here.
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
-        /*Log.d(TAG, "==> MyFirebaseMessagingService onMessageReceived");
-        
-        if(remoteMessage.getNotification() != null){
-            Log.d(TAG, "\tNotification Title: " + remoteMessage.getNotification().getTitle());
-            Log.d(TAG, "\tNotification Message: " + remoteMessage.getNotification().getBody());
-        }
-        
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("wasTapped", false);
-        
-        if(remoteMessage.getNotification() != null){
-            data.put("title", remoteMessage.getNotification().getTitle());
-            data.put("body", remoteMessage.getNotification().getBody());
-        }
-
-        for (String key : remoteMessage.getData().keySet()) {
-                Object value = remoteMessage.getData().get(key);
-                Log.d(TAG, "\tKey: " + key + " Value: " + value);
-                data.put(key, value);
-        }
-        
-        Log.d(TAG, "\tNotification Data: " + data.toString());
-        FCMPlugin.sendPushPayload( data );*/
-
-
-        sendNotification2("teste");
-        //sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(), remoteMessage.getData());
+        super.onMessageReceived(remoteMessage);
+        sendNotification(this, "teste");
     }
     // [END receive_message]
 
@@ -78,45 +77,80 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
 
-    public void sendNotification2(String messageBody) {
+    public void sendNotification(Context context, String messageBody) {
 
-      animate();
-      }
+        pref = context.getSharedPreferences( //
+                PREFERENCE_FILE_KEY, Context.MODE_PRIVATE); //
+        //SharedPreferences.Editor editor = pref.edit();
+        
+        if (pref.contains(KEY)){
 
-    public void animate (){
+            String res = pref.getString(this.KEY, "");
+            res = res.substring(1, res.length()-1);
 
-      Intent alarmIntent = new Intent(this, AlertActivity.class);
-      alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      this.startActivity(alarmIntent);
+            Log.e("RESULTADO INICIAL: ", res);
+
+            if(res.contains("NA")){
+                return ;
+            } else {
+                unserialize(res);
+                compareDates();
+            }
+
+        }
+
+        
     }
 
+    private void compareDates(){
+        Calendar now = Calendar.getInstance();
 
-    private void sendNotification(String title, String messageBody, Map<String, Object> data) {
-        Intent intent = new Intent(this, FCMPluginActivity.class);
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+        int minute = now.get(Calendar.MINUTE);
+
+        date = parseDate(hour + ":" + minute);
+
+        Log.e("Horario agora", date.toString());
+
+        dateCompareOne = parseDate(compareStringOne);
+        dateCompareTwo = parseDate(compareStringTwo);
+
+        Log.e("inicio2", dateCompareOne.toString());
+        Log.e("fim2", dateCompareTwo.toString());
 
 
-
-
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        for (String key : data.keySet()) {
-            intent.putExtra(key, data.get(key).toString());
+        if ( dateCompareOne.before( date ) && dateCompareTwo.after(date)) {
+            Log.e("PASSOU PELA COMPARAÇÃO", "!!!");
+            alarm();
+        } else {
+            Log.e("Fora do range", "!!");
         }
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+    }
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(getApplicationInfo().icon)
-                .setContentTitle(title)
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
+    private Date parseDate(String date) {
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        try {
+            return inputParser.parse(date);
+        } catch (java.text.ParseException e) {
+            return new Date(0);
+        }
+    }
+
+    private void unserialize(String str){
+        String[] parts = str.split("-");
+        this.compareStringOne = parts[0];
+        this.compareStringTwo = parts[1];
+
+        Log.e("inicio", this.compareStringOne);
+        Log.e("fim", this.compareStringTwo);
+    }
+
+    public void alarm() {
+
+        Intent alarmIntent = new Intent(this, AlertActivity.class);
+        alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.startActivity(alarmIntent);
     }
 }
