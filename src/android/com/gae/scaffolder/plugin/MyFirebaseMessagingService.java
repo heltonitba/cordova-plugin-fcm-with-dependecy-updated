@@ -1,31 +1,21 @@
 package com.gae.scaffolder.plugin;
 
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import java.util.Map;
-import java.util.HashMap;
-import android.os.Build;
 import android.os.Vibrator;
-import android.os.VibrationEffect;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences; //
 
-import android.util.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 /**
  * Created by Felipe Echanique on 08/06/2016.
  */
@@ -154,3 +144,4 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         this.startActivity(alarmIntent);
     }
 }
+
