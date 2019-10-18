@@ -25,16 +25,9 @@ public class AlertActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Button myButton = new Button(this);
-    myButton.setText("Press me");
-    myButton.setBackgroundColor(Color.YELLOW);
-
-    RelativeLayout myLayout = new RelativeLayout(this);
-    myLayout.setBackgroundColor(Color.BLUE);
-
-    myLayout.addView(myButton);
-    setContentView(myLayout);
-
+    requestWindowFeature(Window.FEATURE_NO_TITLE);
+    String package_name = getApplication().getPackageName();
+    setContentView(getApplication().getResources().getIdentifier("activity_alert", "layout", package_name));
 
 
     this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
