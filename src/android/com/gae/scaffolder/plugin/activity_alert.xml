@@ -1,28 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="15dp"
-    android:orientation="vertical"
-    android:gravity="center"
+    android:id="@+id/alert_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@layout/gradient_list"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="15dp"
     tools:context=".AlertActivity">
+
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:width="200dp"
+        android:layout_height="82dp"
+        android:layout_margin="5dp"
+        android:fontFamily="sans-serif-light"
+        android:text="PIVÔ 39"
         android:textAlignment="center"
-        android:text="Pivô com problema!!" />
+        android:textColor="#FFFFFF"
+        android:textSize="70dp" />
+
+    <TextView
+        android:layout_margin="10dp"
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="31dp"
+        android:fontFamily="sans-serif-light"
+        android:text="RAZÃO DESCONHECIDA"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="23dp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="31dp"
+        android:fontFamily="sans-serif-light"
+        android:text="23:50"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="23dp" />
 
     <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:onClick="okButton"
-        android:text="OK" />
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_margin="40dp"
+        android:text="X"
+        android:textColor="#E6E6E6"
+        android:textSize="30dp"
+        android:fontFamily="sans-serif-light"
+        android:background="@layout/custom_button"
+        >
+    </Button>
+
+
 </LinearLayout>
