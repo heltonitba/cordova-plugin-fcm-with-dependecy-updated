@@ -3,19 +3,22 @@ package com.gae.scaffolder.plugin;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-import java.util.Map;
-import android.os.Vibrator;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences; //
 
+import android.util.Log;
+
+
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 /**
  * Created by Felipe Echanique on 08/06/2016.
  */
@@ -23,84 +26,141 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FCMPlugin";
     private final String PREFERENCE_FILE_KEY = "NativeStorage"; //
-    private final String KEY = "alerta-config"; //
-
+    private final String KEY_CONFIG = "alerta-config"; //
+    SharedPreferences pref;  //
     public static final String inputFormat = "HH:mm";
 
     private Date date;
     private Date dateCompareOne;
     private Date dateCompareTwo;
 
+    private Map<String, Object>  messageReceived  = new HashMap<>();
     private String compareStringOne;
     private String compareStringTwo;
 
-    SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat);
+    SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat, Locale.GERMANY);
 
+    Map<String, Object> data = new HashMap<>();
 
-    SharedPreferences pref; //
-    SharedPreferences.Editor editor; //
-    Vibrator vibrator;
-
-    @Override
     public void onNewToken(String token) {
-        super.onNewToken(token);
-        Log.d(TAG, "New token: " + token);
+
+        Log.d(TAG, "Refreshed token: " + token);
+
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // Instance ID token to your app server
     }
 
-    /**
-     * Called when message is received.
-     *
-     * @param remoteMessage Object representing the message received from Firebase
-     *                      Cloud Messaging.
-     */
-    // [START receive_message]
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        sendNotification(this, "teste");
+
+
+        if(remoteMessage.getNotification() != null){
+            Log.e(TAG, "\tNotification Title: " + remoteMessage.getNotification().getTitle());
+            Log.e(TAG, "\tNotification Message: " + remoteMessage.getNotification().getBody());
+        }
+
+        data.put("wasTapped", false);
+
+        if(remoteMessage.getNotification() != null){
+            data.put("title", remoteMessage.getNotification().getTitle());
+            data.put("body", remoteMessage.getNotification().getBody());
+        }
+
+        for (String key : remoteMessage.getData().keySet()) {
+            Object value = remoteMessage.getData().get(key);
+            Log.e(TAG, "\tKey: " + key + " Value: " + value);
+            data.put(key, value);
+        }
+
+        this.messageReceived = data;
+
+
+        sendNotification(this);
     }
-    // [END receive_message]
 
-    /**
-     * Create and show a simple notification containing the received FCM message.
-     *
-     * @param messageBody FCM message body received.
-     */
-
-    public void sendNotification(Context context, String messageBody) {
+    public void sendNotification(Context context) {
 
         pref = context.getSharedPreferences( //
                 PREFERENCE_FILE_KEY, Context.MODE_PRIVATE); //
-        //SharedPreferences.Editor editor = pref.edit();
-        
-        if (pref.contains(KEY)){
+        //**** SharedPreferences.Editor editor = pref.edit();
 
-            String res = pref.getString(this.KEY, "");
-            res = res.substring(1, res.length()-1);
+        //**** editor.putString(KEY_CONFIG, "[{\"id\":32,\"reasons\":[255],\"alarm\":true,\"enable\":true,\"start\":\"00:00\",\"end\":\"23:00\",\"user\":4,\"pivots\":[32,39]},{\"id\":2,\"reasons\":[243,246,247,255],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,39]},{\"id\":3,\"reasons\":[243,246,247],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,38,39]},{\"id\":4,\"reasons\":[242,244],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[44]}]");
+        //**** editor.commit();
 
-            Log.e("RESULTADO INICIAL: ", res);
 
-            if(res.contains("NA")){
-                return ;
-            } else {
-                unserialize(res);
-                compareDates();
+        if (pref.contains(KEY_CONFIG) && !pref.getString(KEY_CONFIG, "").equals("")){
+
+
+            String str = pref.getString(this.KEY_CONFIG, "");
+
+            try {
+
+
+                JSONArray res = new JSONArray(str);
+
+                String length = ""+res.length();
+
+                Log.e("LENGTH",length);
+
+                String pivot_id = this.messageReceived.get("pivot_id").toString();
+                String reason_id = this.messageReceived.get("painel_stream_reason").toString();
+
+                Log.e("PIVOTS / REASONS", pivot_id + " / "+ reason_id);
+
+                for (int i =0; i<res.length();i++){
+
+                    Log.e("LENGTH",length);
+                    Object obj = res.get(i);
+
+                    JSONObject json = new JSONObject(obj.toString());
+
+                    Log.e("OBJ:", json.toString());
+
+                    Log.e("PIVOTS", json.getString("pivots"));
+                    Log.e("REASONS",  json.getString("reasons"));
+
+                    if ( json.getString("pivots").contains(pivot_id) &&
+                            json.getString("reasons").contains(reason_id) ){
+
+                        Log.e("STATUS DO IF", "TRUE");
+                        //TRATAR variável date que vai ser obtida pelo firebase
+
+                        //ARRUMAR ESSA PARADA QUE DEVE PASSAR A HORA NO FORMATO HH:MM
+                        String time = this.messageReceived.get("painel_stream_created").toString();
+
+                        //************ VER SE ESSE ALGORITMO PODE AFETAR O FORMATO ************
+
+                        time = time.substring(11, time.length() - 8);
+                        this.date = parseDate( time );
+
+
+                        this.compareStringOne = json.getString("start");
+                        this.compareStringTwo = json.getString("end");
+                        compareDates();
+                        break;
+
+                    }
+
+                }
+
+
+            } catch (Exception e){
+                Log.e("ERROR: ", "" + e);
             }
 
         }
 
-        
+        alarm();
+
+
     }
 
+
     private void compareDates(){
-        Calendar now = Calendar.getInstance();
 
-        int hour = now.get(Calendar.HOUR_OF_DAY);
-        int minute = now.get(Calendar.MINUTE);
-
-        date = parseDate(hour + ":" + minute);
-
-        Log.e("Horario agora", date.toString());
+        Log.e("Data de comparação", date.toString());
 
         dateCompareOne = parseDate(compareStringOne);
         dateCompareTwo = parseDate(compareStringTwo);
@@ -111,15 +171,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if ( dateCompareOne.before( date ) && dateCompareTwo.after(date)) {
             Log.e("PASSOU PELA COMPARAÇÃO", "!!!");
-            alarm();
+            //alarm();
         } else {
             Log.e("Fora do range", "!!");
         }
     }
 
     private Date parseDate(String date) {
-
-        
 
         try {
             return inputParser.parse(date);
@@ -128,20 +186,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void unserialize(String str){
-        String[] parts = str.split("-");
-        this.compareStringOne = parts[0];
-        this.compareStringTwo = parts[1];
-
-        Log.e("inicio", this.compareStringOne);
-        Log.e("fim", this.compareStringTwo);
-    }
 
     public void alarm() {
 
+        Log.e("ALARM", "ALARM");
+        /*
         Intent alarmIntent = new Intent(this, AlertActivity.class);
         alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
+        //alarmIntent.putExtra("notificationMessage", new JSONObject(this.data).toString());
         this.startActivity(alarmIntent);
+
+         */
     }
+
 }
 
