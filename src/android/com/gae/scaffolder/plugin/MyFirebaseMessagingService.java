@@ -34,6 +34,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private Date dateCompareOne;
     private Date dateCompareTwo;
 
+    String pivot_name;
+    String reason_id;
+    String created;
+
     private Map<String, Object>  messageReceived  = new HashMap<>();
     private String compareStringOne;
     private String compareStringTwo;
@@ -84,16 +88,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         pref = context.getSharedPreferences( //
                 PREFERENCE_FILE_KEY, Context.MODE_PRIVATE); //
-        //**** SharedPreferences.Editor editor = pref.edit();
-
-        //**** editor.putString(KEY_CONFIG, "[{\"id\":32,\"reasons\":[255],\"alarm\":true,\"enable\":true,\"start\":\"00:00\",\"end\":\"23:00\",\"user\":4,\"pivots\":[32,39]},{\"id\":2,\"reasons\":[243,246,247,255],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,39]},{\"id\":3,\"reasons\":[243,246,247],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,38,39]},{\"id\":4,\"reasons\":[242,244],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[44]}]");
-        //**** editor.commit();
+        
+        //SharedPreferences.Editor editor = pref.edit();
+        //editor.putString(KEY_CONFIG, "[{\"id\":32,\"reasons\":[255],\"alarm\":true,\"enable\":true,\"start\":\"00:00\",\"end\":\"23:00\",\"user\":4,\"pivots\":[32,39]},{\"id\":2,\"reasons\":[243,246,247,255],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,39]},{\"id\":3,\"reasons\":[243,246,247],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,38,39]},{\"id\":4,\"reasons\":[242,244],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[44]}]");
+        //editor.commit();
 
 
         if (pref.contains(KEY_CONFIG) && !pref.getString(KEY_CONFIG, "").equals("")){
 
 
             String str = pref.getString(this.KEY_CONFIG, "");
+
+            //se ele nao tiver fazendo o unescape sozinho ja é um problema
+            //tem a questao das {sua string aqui} tambem que pode fazer funcionar
+
+            Log.e("STRING DA CONFIG", str);
+            str = str.replace("\\\"","'");
+            str= str.substring(1, str.length()-1);
+            Log.e("STRING DA EDITADA", str);
+            
 
             try {
 
@@ -105,9 +118,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.e("LENGTH",length);
 
                 String pivot_id = this.messageReceived.get("pivot_id").toString();
-                String reason_id = this.messageReceived.get("painel_stream_reason").toString();
+                this.reason_id = this.messageReceived.get("painel_stream_reason").toString();
+                this.created = this.messageReceived.get("painel_stream_created").toString();
+                this.pivot_name = this.messageReceived.get("pivot_name").toString();
 
-                Log.e("PIVOTS / REASONS", pivot_id + " / "+ reason_id);
+                Log.e("PIVOTS / REASONS", pivot_id + " / "+ this.reason_id);
 
                 for (int i =0; i<res.length();i++){
 
@@ -122,7 +137,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Log.e("REASONS",  json.getString("reasons"));
 
                     if ( json.getString("pivots").contains(pivot_id) &&
-                            json.getString("reasons").contains(reason_id) ){
+                            json.getString("reasons").contains(this.reason_id) ){
 
                         Log.e("STATUS DO IF", "TRUE");
                         //TRATAR variável date que vai ser obtida pelo firebase
@@ -152,8 +167,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         }
 
-        alarm();
-
 
     }
 
@@ -171,7 +184,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if ( dateCompareOne.before( date ) && dateCompareTwo.after(date)) {
             Log.e("PASSOU PELA COMPARAÇÃO", "!!!");
-            //alarm();
+            alarm();
         } else {
             Log.e("Fora do range", "!!");
         }
@@ -190,16 +203,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void alarm() {
 
         Log.e("ALARM", "ALARM");
-        /*
+
         Intent alarmIntent = new Intent(this, AlertActivity.class);
         alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 
-        //alarmIntent.putExtra("notificationMessage", new JSONObject(this.data).toString());
+
+        alarmIntent.putExtra("pivot_name", this.pivot_name);
+        alarmIntent.putExtra("reason_id", this.reason_id);
+        alarmIntent.putExtra("created", this.created);
+
         this.startActivity(alarmIntent);
 
-         */
+
     }
 
 }
-
