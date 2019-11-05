@@ -110,8 +110,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             try {
 
+                
 
                 JSONArray res = new JSONArray(str);
+
+                if(res.length() == 0){
+                    return;
+                }
 
                 String length = ""+res.length();
 
@@ -147,7 +152,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                         //************ VER SE ESSE ALGORITMO PODE AFETAR O FORMATO ************
 
-                        time = time.substring(11, time.length() - 8);
+                        time = time.substring(11, time.length());
+                        time = time.substring(0, 5);
+                        this.created = time;
                         this.date = parseDate( time );
 
 

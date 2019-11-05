@@ -79,6 +79,12 @@
 
 		<source-file src="src/android/com/gae/scaffolder/plugin/FCMPlugin.java" target-dir="src/com/gae/scaffolder/plugin" />
 		<source-file src="src/android/com/gae/scaffolder/plugin/MyFirebaseMessagingService.java" target-dir="src/com/gae/scaffolder/plugin" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/activity_alert.xml" target-dir="res/layout" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/gradient_1.xml" target-dir="res/layout" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/gradient_2.xml" target-dir="res/layout" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/gradient_3.xml" target-dir="res/layout" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/gradient_list.xml" target-dir="res/layout" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/custom_button.xml" target-dir="res/layout" />
 		<source-file src="src/android/com/gae/scaffolder/plugin/FCMPluginActivity.java" target-dir="src/com/gae/scaffolder/plugin" />
 		<source-file src="src/android/com/gae/scaffolder/plugin/AlertActivity.java" target-dir="src/com/gae/scaffolder/plugin" />
 		<source-file src="src/android/com/gae/scaffolder/plugin/interfaces/OnFinishedListener.java" target-dir="src/com/gae/scaffolder/plugin/interfaces" />
