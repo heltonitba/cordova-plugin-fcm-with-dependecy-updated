@@ -145,23 +145,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             json.getString("reasons").contains(this.reason_id) ){
 
                         Log.e("STATUS DO IF", "TRUE");
-                        //TRATAR variável date que vai ser obtida pelo firebase
+                        Log.e("ENABLE ", json.getString("enable"));
+                        if (json.getString("enable") == "true"){
 
-                        //ARRUMAR ESSA PARADA QUE DEVE PASSAR A HORA NO FORMATO HH:MM
-                        String time = this.messageReceived.get("painel_stream_created").toString();
+                            //TRATAR variável date que vai ser obtida pelo firebase
 
-                        //************ VER SE ESSE ALGORITMO PODE AFETAR O FORMATO ************
+                            //ARRUMAR ESSA PARADA QUE DEVE PASSAR A HORA NO FORMATO HH:MM
+                            String time = this.messageReceived.get("painel_stream_created").toString();
 
-                        time = time.substring(11, time.length());
-                        time = time.substring(0, 5);
-                        this.created = time;
-                        this.date = parseDate( time );
+                            //************ VER SE ESSE ALGORITMO PODE AFETAR O FORMATO ************
+
+                            time = time.substring(11, time.length());
+                            time = time.substring(0, 5);
+                            this.created = time;
+                            this.date = parseDate( time );
 
 
-                        this.compareStringOne = json.getString("start");
-                        this.compareStringTwo = json.getString("end");
-                        compareDates();
-                        break;
+                            this.compareStringOne = json.getString("start");
+                            this.compareStringTwo = json.getString("end");
+                            compareDates();
+                            break;
+
+                        } else {
+                            return ;
+                        }
+                        
 
                     }
 
