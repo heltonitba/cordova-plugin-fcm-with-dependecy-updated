@@ -70,7 +70,7 @@ public class AlertActivity extends Activity {
         // TODO:
         // This function closes Activity Two
         // Hint: use Context's finish() method
-        finish();
+        finishAndRemoveTask();
       }
     });
 
@@ -152,3 +152,4 @@ public class AlertActivity extends Activity {
     return "NA";
   }
 }
+
