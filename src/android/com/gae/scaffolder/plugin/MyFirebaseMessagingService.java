@@ -15,8 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.TimeZone;
+import org.joda.time.DateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -223,15 +223,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // String end = "03:00";        
         // String event = "2019-11-13T01:01:12.651Z"; // utc
         
-        ZonedDateTime now = ZonedDateTime.now(); // pega horario local  
-        System.err.println(ZoneId.systemDefault());
-        ZonedDateTime eventTimeUTC = ZonedDateTime.parse(event);
-        ZonedDateTime eventTimeLOCAL = eventTimeUTC.withZoneSameInstant(ZoneId.systemDefault());
+        DateTime eventTimeUTC = DateTime.parse(event);
+        DateTime eventTimeLOCAL = new DateTime(eventTimeUTC, DateTimeZone.forID(TimeZone.getDefault().getID()));
+
         // LocalDateTime eventTimeLOCAL = LocalDateTime.ofInstant(eventTimeUTC.toInstant(), now.getOffset());
-        Log.e("UTC EVENT");
-        Log.e(eventTimeUTC);
-        Log.e("LOCAL EVENT");
-        Log.e(eventTimeLOCAL);
+        System.out.println("UTC EVENT");
+        System.out.println(eventTimeUTC);
+        System.out.println("LOCAL EVENT");
+        System.out.println(eventTimeLOCAL);
+        
+        System.err.println("Timezone");
+        System.err.println(TimeZone.getDefault().getID());
         
         // extraindo as horas e minutos do start
         String[] start_array = start.split(":", 0);
@@ -250,20 +252,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         
                 
         // Encontra o datetime do start antes do shift
-        ZonedDateTime todayStartZonedTime = ZonedDateTime.now(); // pega horario local  
-        todayStartZonedTime = todayStartZonedTime.withHour((int)start_hour); // substitui as horas
-        todayStartZonedTime = todayStartZonedTime.withMinute((int)((start_hour - (int)start_hour)*60)); // substitui os minutos
-        ZonedDateTime yesterdayStartZonedTime = todayStartZonedTime.minusDays(1);
+        DateTime todayStartZonedTime = DateTime.now(); // pega horario local  
+        todayStartZonedTime = todayStartZonedTime.withHourOfDay((int)start_hour); // substitui as horas
+        todayStartZonedTime = todayStartZonedTime.withMinuteOfHour((int)((start_hour - (int)start_hour)*60)); // substitui os minutos
+        DateTime yesterdayStartZonedTime = todayStartZonedTime.minusDays(1);
                 
         
         // Encontra o datetime do end antes do shift e baseado na diferenca de data
-        ZonedDateTime todayEndZonedTime = todayStartZonedTime; // pega horario local     
+        DateTime todayEndZonedTime = todayStartZonedTime; // pega horario local     
         todayEndZonedTime = todayEndZonedTime.plusHours((int)hours_diff); // substitui as horas
         todayEndZonedTime = todayEndZonedTime.plusMinutes((int)((hours_diff - (int)hours_diff)*60)); // substitui os minutos
-        ZonedDateTime yesterdayEndZonedTime = todayEndZonedTime.minusDays(1);
+        DateTime yesterdayEndZonedTime = todayEndZonedTime.minusDays(1);
                
-        Log.e("Range Today: " + todayStartZonedTime + " -> " + todayEndZonedTime);
-        Log.e("Reange Yesterday: " + yesterdayStartZonedTime + " -> " + yesterdayEndZonedTime);
+        System.out.println("Range Today: " + todayStartZonedTime + " -> " + todayEndZonedTime);
+        System.out.println("Reange Yesterday: " + yesterdayStartZonedTime + " -> " + yesterdayEndZonedTime);
         
         
         if((eventTimeLOCAL.isAfter(todayStartZonedTime) && eventTimeLOCAL.isBefore(todayEndZonedTime)) || 
