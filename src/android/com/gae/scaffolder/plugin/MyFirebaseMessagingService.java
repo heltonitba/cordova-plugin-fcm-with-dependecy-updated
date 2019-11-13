@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -163,9 +165,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                             this.compareStringOne = json.getString("start");
                             this.compareStringTwo = json.getString("end");
-                            compareDates();
+                            if (canBeAlert(this.compareStringOne, this.compareStringTwo, this.created)){
+                                alarm();
+                            }
                             break;
-
                         } else {
                             return ;
                         }
@@ -212,6 +215,64 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } catch (java.text.ParseException e) {
             return new Date(0);
         }
+    }
+    
+    private Boolean canBeAlert(String start, String end, String event){
+        
+        // String start = "22:00";
+        // String end = "03:00";        
+        // String event = "2019-11-13T01:01:12.651Z"; // utc
+        
+        ZonedDateTime now = ZonedDateTime.now(); // pega horario local  
+        System.err.println(ZoneId.systemDefault());
+        ZonedDateTime eventTimeUTC = ZonedDateTime.parse(event);
+        ZonedDateTime eventTimeLOCAL = eventTimeUTC.withZoneSameInstant(ZoneId.systemDefault());
+        // LocalDateTime eventTimeLOCAL = LocalDateTime.ofInstant(eventTimeUTC.toInstant(), now.getOffset());
+        Log.e("UTC EVENT");
+        Log.e(eventTimeUTC);
+        Log.e("LOCAL EVENT");
+        Log.e(eventTimeLOCAL);
+        
+        // extraindo as horas e minutos do start
+        String[] start_array = start.split(":", 0);
+        float start_hour = Integer.parseInt(start_array[0]) +  Integer.parseInt(start_array[1])/60; // Transforma os minutos em horas
+        
+        // extraindo as horas e minutos do end
+        String[] end_array = end.split(":", 0); 
+        float end_hour = Integer.parseInt(end_array[0]) + Integer.parseInt(end_array[1])/60; // Transforma os minutos em horas
+        
+        // extraindo a diferenca de horas entre os dois horarios
+        float hours_diff = 0;
+        if (start_hour < end_hour)
+            hours_diff = start_hour-end_hour;
+        else
+            hours_diff = (24 - start_hour) + end_hour;
+        
+                
+        // Encontra o datetime do start antes do shift
+        ZonedDateTime todayStartZonedTime = ZonedDateTime.now(); // pega horario local  
+        todayStartZonedTime = todayStartZonedTime.withHour((int)start_hour); // substitui as horas
+        todayStartZonedTime = todayStartZonedTime.withMinute((int)((start_hour - (int)start_hour)*60)); // substitui os minutos
+        ZonedDateTime yesterdayStartZonedTime = todayStartZonedTime.minusDays(1);
+                
+        
+        // Encontra o datetime do end antes do shift e baseado na diferenca de data
+        ZonedDateTime todayEndZonedTime = todayStartZonedTime; // pega horario local     
+        todayEndZonedTime = todayEndZonedTime.plusHours((int)hours_diff); // substitui as horas
+        todayEndZonedTime = todayEndZonedTime.plusMinutes((int)((hours_diff - (int)hours_diff)*60)); // substitui os minutos
+        ZonedDateTime yesterdayEndZonedTime = todayEndZonedTime.minusDays(1);
+               
+        Log.e("Range Today: " + todayStartZonedTime + " -> " + todayEndZonedTime);
+        Log.e("Reange Yesterday: " + yesterdayStartZonedTime + " -> " + yesterdayEndZonedTime);
+        
+        
+        if((eventTimeLOCAL.isAfter(todayStartZonedTime) && eventTimeLOCAL.isBefore(todayEndZonedTime)) || 
+                (eventTimeLOCAL.isAfter(yesterdayStartZonedTime) && eventTimeLOCAL.isBefore(yesterdayEndZonedTime))){
+            return true;
+        }else{
+            return false;
+        }
+        
     }
 
 
