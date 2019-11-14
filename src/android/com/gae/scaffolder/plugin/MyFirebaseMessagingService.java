@@ -89,17 +89,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         pref = context.getSharedPreferences( //
                 PREFERENCE_FILE_KEY, Context.MODE_PRIVATE); //
 
-        // SharedPreferences.Editor editor = pref.edit();
-        // editor.putString(KEY_CONFIG,
-        // "[{\"id\":32,\"reasons\":[255],\"alarm\":true,\"enable\":true,\"start\":\"00:00\",\"end\":\"23:00\",\"user\":4,\"pivots\":[32,39]},{\"id\":2,\"reasons\":[243,246,247,255],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,39]},{\"id\":3,\"reasons\":[243,246,247],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[40,38,39]},{\"id\":4,\"reasons\":[242,244],\"alarm\":true,\"enable\":true,\"start\":\"00:00:00\",\"end\":\"23:00:00\",\"user\":4,\"pivots\":[44]}]");
-        // editor.commit();
-
         if (pref.contains(KEY_CONFIG) && !pref.getString(KEY_CONFIG, "").equals("")) {
 
             String str = pref.getString(this.KEY_CONFIG, "");
-
-            // se ele nao tiver fazendo o unescape sozinho ja é um problema
-            // tem a questao das {sua string aqui} tambem que pode fazer funcionar
 
             Log.e("STRING DA CONFIG", str);
             str = str.replace("\\\"", "'");
@@ -145,10 +137,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         if (json.getString("enable") == "true") {
 
                             this.compareStringOne = json.getString("start");
-                            this.compareStringOne = this.compareStringOne.substring(0, this.compareStringOne.length() - 3);
+                            this.compareStringOne = this.compareStringOne.substring(0,
+                                    this.compareStringOne.length() - 3);
 
                             this.compareStringTwo = json.getString("end");
-                            this.compareStringTwo = this.compareStringTwo.substring(0, this.compareStringTwo.length() - 3);
+                            this.compareStringTwo = this.compareStringTwo.substring(0,
+                                    this.compareStringTwo.length() - 3);
 
                             if (canBeAlert(this.compareStringOne, this.compareStringTwo, this.created)) {
                                 Log.e("ALARM", "ALARM");
@@ -183,7 +177,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         DateTime eventTimeUTC = DateTime.parse(event);
         DateTime eventTimeLOCAL = new DateTime(eventTimeUTC, DateTimeZone.forID(TimeZone.getDefault().getID()));
-        //DateTime eventTimeLOCAL = new DateTime(eventTimeUTC, TimeZone.getDefault().getID());
+        // DateTime eventTimeLOCAL = new DateTime(eventTimeUTC,
+        // TimeZone.getDefault().getID());
 
         // LocalDateTime eventTimeLOCAL =
         // LocalDateTime.ofInstant(eventTimeUTC.toInstant(), now.getOffset());
@@ -195,18 +190,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         System.err.println(TimeZone.getDefault().getID());
 
         // extraindo as horas e minutos do start
-        String[] start_array = start.split(":", 0);
-        float start_hour = Integer.parseInt(start_array[0]) + Integer.parseInt(start_array[1]) / 60; // Transforma os
+        String[] start_array = start.split(":");
+        float start_hour = Integer.parseInt(start_array[0]) + Float.parseFloat(start_array[1]) / 60; // Transforma os
                                                                                                      // minutos em horas
 
+        Log.e("START_ARRAY[1]", Integer.toString(Integer.parseInt(start_array[1])));
+        Log.e("START_ARRAY[1] / 60", Float.toString(Float.parseFloat(start_array[1]) / 60));
         // extraindo as horas e minutos do end
-        String[] end_array = end.split(":", 0);
-        float end_hour = Integer.parseInt(end_array[0]) + Integer.parseInt(end_array[1]) / 60; // Transforma os minutos
+        String[] end_array = end.split(":");
+        float end_hour = Integer.parseInt(end_array[0]) + Float.parseFloat(end_array[1]) / 60; // Transforma os minutos
                                                                                                // em horas
 
-        Log.e("START HOUR", Float.toString(start_hour) );
+        Log.e("START HOUR", Float.toString(start_hour));
         Log.e("END HOUR", Float.toString(end_hour));
-        Log.e("CONTA PARA JOGAR OS MINUTOS NAS HORAS: ", Integer.toString((int) ((start_hour - (int) start_hour) * 60)));
+        Log.e("CONTA PARA JOGAR OS MINUTOS NAS HORAS: ",
+                Integer.toString((int) ((start_hour - (int) start_hour) * 60)));
         // extraindo a diferenca de horas entre os dois horarios
         float hours_diff = 0;
         if (start_hour < end_hour)
@@ -218,15 +216,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         DateTime todayStartZonedTime = DateTime.now(); // pega horario local
         todayStartZonedTime = todayStartZonedTime.withHourOfDay((int) start_hour); // substitui as horas
         todayStartZonedTime = todayStartZonedTime.withMinuteOfHour((int) ((start_hour - (int) start_hour) * 60)); // substitui
-                                                                                                                  // os
-                                                                                                                  // minutos
+        todayStartZonedTime = todayStartZonedTime.withSecondOfMinute(0);
         DateTime yesterdayStartZonedTime = todayStartZonedTime.minusDays(1);
 
         // Encontra o datetime do end antes do shift e baseado na diferenca de data
         DateTime todayEndZonedTime = todayStartZonedTime; // pega horario local
         todayEndZonedTime = todayEndZonedTime.plusHours((int) hours_diff); // substitui as horas
         todayEndZonedTime = todayEndZonedTime.plusMinutes((int) ((hours_diff - (int) hours_diff) * 60)); // substitui os
-                                                                                                         // minutos
+        todayEndZonedTime = todayEndZonedTime.withSecondOfMinute(59); // minutos
         DateTime yesterdayEndZonedTime = todayEndZonedTime.minusDays(1);
 
         Log.e("Range Today ", todayStartZonedTime.toString() + " -> " + todayEndZonedTime.toString());
