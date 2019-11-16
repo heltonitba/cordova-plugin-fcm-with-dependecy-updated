@@ -231,4 +231,3 @@ public class AlertActivity extends Activity implements View.OnClickListener {
   }
 
 }
-

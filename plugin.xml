@@ -89,6 +89,7 @@
 		<source-file src="src/android/com/gae/scaffolder/plugin/AlertActivity.java" target-dir="src/com/gae/scaffolder/plugin" />
 		<source-file src="src/android/com/gae/scaffolder/plugin/interfaces/OnFinishedListener.java" target-dir="src/com/gae/scaffolder/plugin/interfaces" />
 		<source-file src="src/android/com/gae/scaffolder/plugin/interfaces/TokenListeners.java" target-dir="src/com/gae/scaffolder/plugin/interfaces" />
+		<source-file src="src/android/com/gae/scaffolder/plugin/interfaces/joda.jar" target-dir="libs" />
 	</platform>
 
 	<!-- IOS CONFIGURATION -->
