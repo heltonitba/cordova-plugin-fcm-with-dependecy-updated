@@ -175,7 +175,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.e("START ", start);
         Log.e("END ", end);
 
-        DateTime eventTimeUTC = DateTime.parse(event);
+        DateTime eventTimeUTC = new DateTime(Long.valueOf(event), DateTimeZone.UTC);
         DateTime eventTimeLOCAL = new DateTime(eventTimeUTC, DateTimeZone.forID(TimeZone.getDefault().getID()));
         // DateTime eventTimeLOCAL = new DateTime(eventTimeUTC,
         // TimeZone.getDefault().getID());
