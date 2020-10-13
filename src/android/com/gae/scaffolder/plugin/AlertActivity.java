@@ -54,16 +54,16 @@ public class AlertActivity extends Activity implements View.OnClickListener {
 
     // setando informações do pivô na view
     TextView pivo = findViewById(R.id.pivot);
-    Log.e("PIVOT DA VIEW", pivo.getText().toString());
-    pivo.setText(pivot_name.toString());
+    Log.e("PIVOT DA VIEW", (String) pivo.getText());
+    pivo.setText((String) pivot_name);
 
     // setando informações da razão do problema do pivô na view
     TextView reason = findViewById(R.id.reason);
-    reason.setText(reasonHandler(reason_id).toString());
+    reason.setText((String) reasonHandler(reason_id));
 
     // mostrando o hoŕario HH:MM no qual ocorreu o envio da notificação pelo backend
     TextView horario = findViewById(R.id.time);
-    horario.setText(created.toString());
+    horario.setText((String) created);
 
     // arrumando animação de background da view
     LinearLayout linearLayout = findViewById(R.id.layout);

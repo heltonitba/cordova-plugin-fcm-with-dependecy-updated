@@ -110,16 +110,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 Log.e("LENGTH", length);
 
-                String pivot_id = this.messageReceived.get("pivot_id").toString();
-                this.reason_id = this.messageReceived.get("painel_stream_reason").toString();
-                this.created = this.messageReceived.get("painel_stream_created").toString();
-                this.pivot_name = this.messageReceived.get("pivot_name").toString();
+                String pivot_id = (String) this.messageReceived.get("pivot_id");
+                this.reason_id = (String) this.messageReceived.get("painel_stream_reason");
+                this.created = (String) this.messageReceived.get("painel_stream_created");
+                this.pivot_name = (String) this.messageReceived.get("pivot_name");
+
+                Log.e("PIVOT_NAME", this.pivot_name);
 
                 Log.e("PIVOTS / REASONS", pivot_id + " / " + this.reason_id);
 
                 for (int i = 0; i < res.length(); i++) {
 
                     Log.e("LENGTH", length);
+                    Log.e("DEBUG RES.GET(I) ", "-----------");
                     Object obj = res.get(i);
 
                     JSONObject json = new JSONObject(obj.toString());
@@ -168,14 +171,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private Boolean canBeAlert(String start, String end, String event) {
-
         // String start = "22:00";
         // String end = "03:00";
         // String event = "2019-11-13T01:01:12.651Z"; // utc
         Log.e("START ", start);
         Log.e("END ", end);
 
-        DateTime eventTimeUTC = new DateTime(Long.valueOf(event), DateTimeZone.UTC);
+        DateTime eventTimeUTC = DateTime.parse(event);
         DateTime eventTimeLOCAL = new DateTime(eventTimeUTC, DateTimeZone.forID(TimeZone.getDefault().getID()));
         // DateTime eventTimeLOCAL = new DateTime(eventTimeUTC,
         // TimeZone.getDefault().getID());
@@ -185,9 +187,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.e("UTC EVENT", eventTimeUTC.toString());
         Log.e("LOCAL EVENT", eventTimeLOCAL.toString());
         this.createdUTC = eventTimeLOCAL.toString();
-
-        System.err.println("Timezone");
-        System.err.println(TimeZone.getDefault().getID());
 
         // extraindo as horas e minutos do start
         String[] start_array = start.split(":");
@@ -203,7 +202,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Log.e("START HOUR", Float.toString(start_hour));
         Log.e("END HOUR", Float.toString(end_hour));
-        Log.e("CONTA PARA JOGAR OS MINUTOS NAS HORAS: ",
+        Log.e("CONTA JOGAR OS MIN->H:",
                 Integer.toString((int) ((start_hour - (int) start_hour) * 60)));
         // extraindo a diferenca de horas entre os dois horarios
         float hours_diff = 0;
